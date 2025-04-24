@@ -230,8 +230,16 @@ class ChainedTranslationManager
 
     private function getGroupPath(string $locale, string $group, string $languagePath=null): string
     {
+        $tenant = \Filament\Facades\Filament::getTenant();
+
+        if ($tenant) {
+            $languagePath = base_path("lang-custom/labels/{$tenant->domain}");
+        } else {
+            $languagePath = ($languagePath ?? $this->path);
+        }
+
         if ($group === $this->getJsonGroupName()) {
-            return ($languagePath ?? $this->path).DIRECTORY_SEPARATOR.$locale.'.json';
+            return $languagePath . DIRECTORY_SEPARATOR . $locale . '.json';
         }
 
         $basePath = $this->getGroupBasePath($locale, $group, $languagePath);
@@ -239,7 +247,7 @@ class ChainedTranslationManager
         $this->pullNamespaceFromGroup($group);
         $this->pullSubfoldersFromGroup($group);
 
-        return $basePath.DIRECTORY_SEPARATOR.$group.'.php';
+        return $basePath . DIRECTORY_SEPARATOR . $group . '.php';
     }
 
     private function getGroupBasePath(string $locale, string $group, string $languagePath=null): string
